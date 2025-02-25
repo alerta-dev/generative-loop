@@ -1,71 +1,70 @@
-let numCirclesSlider;
-let baseRadiusSlider;
-let radiusIncrementSlider;
-let frequencySlider;
-let maxStrokeWidthSlider;
-let colorSpeedSlider;
+let numCirclesSlider, baseRadiusSlider, radiusIncrementSlider, frequencySlider;
+let minStrokeWidthSlider, maxStrokeWidthSlider, phaseOffsetSlider;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-  
-  // Create sliders with labels
-  createP('Number of Circles').position(20, 0);
-  numCirclesSlider = createSlider(1, 20, 5, 1);
-  numCirclesSlider.position(20, 20);
-  
-  createP('Base Radius').position(20, 40);
+  createCanvas(600, 600);
+
+  // Create sliders for existing controls
+  createP('Number of Circles').position(20, 80);
+  numCirclesSlider = createSlider(1, 20, 10, 1);
+  numCirclesSlider.position(20, 100);
+
+  createP('Base Radius').position(20, 120);
   baseRadiusSlider = createSlider(10, 200, 50, 1);
-  baseRadiusSlider.position(20, 60);
-  
-  createP('Radius Increment').position(20, 80);
+  baseRadiusSlider.position(20, 140);
+
+  createP('Radius Increment').position(20, 160);
   radiusIncrementSlider = createSlider(10, 50, 20, 1);
-  radiusIncrementSlider.position(20, 100);
-  
-  createP('Oscillation Frequency').position(20, 120);
-  frequencySlider = createSlider(0.001, 0.1, 0.01, 0.001);
-  frequencySlider.position(20, 140);
-  
-  createP('Max Stroke Width').position(20, 160);
-  maxStrokeWidthSlider = createSlider(1, 20, 10, 1);
-  maxStrokeWidthSlider.position(20, 180);
-  
-  createP('Color Cycle Speed').position(20, 200);
-  colorSpeedSlider = createSlider(0, 100, 30, 1);
-  colorSpeedSlider.position(20, 220);
+  radiusIncrementSlider.position(20, 180);
+
+  createP('Oscillation Frequency').position(20, 200);
+  frequencySlider = createSlider(0.001, 0.1, 0.02, 0.001);
+  frequencySlider.position(20, 220);
+
+  // Create new sliders for additional controls
+  createP('Min Stroke Width').position(20, 240);
+  minStrokeWidthSlider = createSlider(0, 20, 1, 0.1);
+  minStrokeWidthSlider.position(20, 260);
+
+  createP('Max Stroke Width').position(20, 280);
+  maxStrokeWidthSlider = createSlider(1, 20, 10, 0.1);
+  maxStrokeWidthSlider.position(20, 300);
+
+  createP('Phase Offset Factor').position(20, 320);
+  phaseOffsetSlider = createSlider(0, 1, 1, 0.01);
+  phaseOffsetSlider.position(20, 340);
 }
 
 function draw() {
   background(0); // Black background
-  colorMode(HSB, 360, 100, 100); // Set color mode to HSB
-  
-  // Retrieve current parameter values
+
+  // Retrieve slider values
   let numCircles = numCirclesSlider.value();
   let baseRadius = baseRadiusSlider.value();
   let radiusIncrement = radiusIncrementSlider.value();
   let frequency = frequencySlider.value();
+  let minStrokeWidth = minStrokeWidthSlider.value();
   let maxStrokeWidth = maxStrokeWidthSlider.value();
-  let colorSpeed = colorSpeedSlider.value();
-  
-  let time = millis() / 1000; // Time in seconds
-  let hue = (time * colorSpeed) % 360;
-  let hueOffset = 360 / numCircles;
-  let phaseOffset = 2 * PI / numCircles;
+  let phaseOffsetFactor = phaseOffsetSlider.value();
+
+  // Ensure min and max stroke widths are ordered correctly
+  let actualMinSW = min(minStrokeWidth, maxStrokeWidth);
+  let actualMaxSW = max(minStrokeWidth, maxStrokeWidth);
+
+  let time = millis() / 1000; // Time in seconds for animation
+  let phaseOffset = phaseOffsetFactor * 2 * PI / numCircles;
   let centerX = width / 2;
   let centerY = height / 2;
-  
-  noFill(); // Circles are outlines only
-  
+
+  noFill(); // Draw outlines only
+  stroke(255); // White stroke color
+
   // Draw each circle
   for (let i = 0; i < numCircles; i++) {
     let radius = baseRadius + i * radiusIncrement;
     let arg = 2 * PI * frequency * time + i * phaseOffset;
-    let strokeWidth = maxStrokeWidth * (0.5 + 0.5 * sin(arg));
+    let strokeWidth = actualMinSW + (actualMaxSW - actualMinSW) * (0.5 + 0.5 * sin(arg));
     strokeWeight(strokeWidth);
-    stroke((hue + i * hueOffset) % 360, 100, 100);
     ellipse(centerX, centerY, radius * 2);
   }
-}
-
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
 }
