@@ -3,6 +3,7 @@ let baseRadiusSlider;
 let radiusIncrementSlider;
 let frequencySlider;
 let maxStrokeWidthSlider;
+let colorSpeedSlider;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -27,10 +28,15 @@ function setup() {
   createP('Max Stroke Width').position(20, 160);
   maxStrokeWidthSlider = createSlider(1, 20, 10, 1);
   maxStrokeWidthSlider.position(20, 180);
+  
+  createP('Color Cycle Speed').position(20, 200);
+  colorSpeedSlider = createSlider(0, 100, 30, 1);
+  colorSpeedSlider.position(20, 220);
 }
 
 function draw() {
   background(0); // Black background
+  colorMode(HSB, 360, 100, 100); // Set color mode to HSB
   
   // Retrieve current parameter values
   let numCircles = numCirclesSlider.value();
@@ -38,14 +44,16 @@ function draw() {
   let radiusIncrement = radiusIncrementSlider.value();
   let frequency = frequencySlider.value();
   let maxStrokeWidth = maxStrokeWidthSlider.value();
+  let colorSpeed = colorSpeedSlider.value();
   
   let time = millis() / 1000; // Time in seconds
+  let hue = (time * colorSpeed) % 360;
+  let hueOffset = 360 / numCircles;
   let phaseOffset = 2 * PI / numCircles;
   let centerX = width / 2;
   let centerY = height / 2;
   
   noFill(); // Circles are outlines only
-  stroke(255); // White stroke color
   
   // Draw each circle
   for (let i = 0; i < numCircles; i++) {
@@ -53,6 +61,7 @@ function draw() {
     let arg = 2 * PI * frequency * time + i * phaseOffset;
     let strokeWidth = maxStrokeWidth * (0.5 + 0.5 * sin(arg));
     strokeWeight(strokeWidth);
+    stroke((hue + i * hueOffset) % 360, 100, 100);
     ellipse(centerX, centerY, radius * 2);
   }
 }
